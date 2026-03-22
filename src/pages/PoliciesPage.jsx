@@ -3,7 +3,7 @@ import { apiFetch } from '../api/client';
 import { Calendar, RefreshCw, ChevronRight, X, Save, Plus, Users } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const GW = 'gateway-a';
+// Per docs: access policy endpoints accept ?dev_index= for per-device targeting (optional)
 
 const TABS = [
   { id: 'week-plans', label: '📅 Недельные планы' },
@@ -80,7 +80,7 @@ export default function PoliciesPage() {
   const loadHolidayPlan = async () => {
     setLoading(true);
     try {
-      const res = await apiFetch(`/ext/v1/access-policies/holiday-plans/${holidayPlanNo}?gateway=${GW}`);
+      const res = await apiFetch(`/ext/v1/access-policies/holiday-plans/${holidayPlanNo}`);
       const d = res?.data || res;
       setHolidayPlan(d);
       setEditHolidayPlan(d);
@@ -90,7 +90,7 @@ export default function PoliciesPage() {
   const loadHolidayGroup = async () => {
     setLoading(true);
     try {
-      const res = await apiFetch(`/ext/v1/access-policies/holiday-groups/${holidayGroupNo}?gateway=${GW}`);
+      const res = await apiFetch(`/ext/v1/access-policies/holiday-groups/${holidayGroupNo}`);
       const d = res?.data || res;
       setHolidayGroup(d);
       setEditHolidayGroup(d);
@@ -100,7 +100,7 @@ export default function PoliciesPage() {
   const saveHolidayPlan = async () => {
     setSaving(true);
     try {
-      await apiFetch(`/ext/v1/access-policies/holiday-plans/${holidayPlanNo}?gateway=${GW}`, {
+      await apiFetch(`/ext/v1/access-policies/holiday-plans/${holidayPlanNo}`, {
         method: 'PUT', body: JSON.stringify(editHolidayPlan),
       });
       toast.success('Праздничный план сохранён');
@@ -110,7 +110,7 @@ export default function PoliciesPage() {
   const saveHolidayGroup = async () => {
     setSaving(true);
     try {
-      await apiFetch(`/ext/v1/access-policies/holiday-groups/${holidayGroupNo}?gateway=${GW}`, {
+      await apiFetch(`/ext/v1/access-policies/holiday-groups/${holidayGroupNo}`, {
         method: 'PUT', body: JSON.stringify(editHolidayGroup),
       });
       toast.success('Праздничная группа сохранена');
@@ -129,8 +129,8 @@ export default function PoliciesPage() {
     setDetailLoading(true);
     try {
       const path = type === 'week-plans'
-        ? `/ext/v1/access-policies/week-plans/${no}?gateway=${GW}`
-        : `/ext/v1/access-policies/plan-templates/${no}?gateway=${GW}`;
+        ? `/ext/v1/access-policies/week-plans/${no}`
+        : `/ext/v1/access-policies/plan-templates/${no}`;
       const res = await apiFetch(path);
       const d = res?.data || res;
       setDetailModal({ type, no, data: d });
@@ -143,8 +143,8 @@ export default function PoliciesPage() {
     setSaving(true);
     try {
       const path = detailModal.type === 'week-plans'
-        ? `/ext/v1/access-policies/week-plans/${detailModal.no}?gateway=${GW}`
-        : `/ext/v1/access-policies/plan-templates/${detailModal.no}?gateway=${GW}`;
+        ? `/ext/v1/access-policies/week-plans/${detailModal.no}`
+        : `/ext/v1/access-policies/plan-templates/${detailModal.no}`;
       await apiFetch(path, { method: 'PUT', body: JSON.stringify(editData) });
       toast.success('Сохранено');
       setDetailModal(null);

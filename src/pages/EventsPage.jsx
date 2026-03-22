@@ -93,7 +93,12 @@ export default function EventsPage() {
   const startSSE = useCallback(() => {
     if (sseRef.current) sseRef.current.close();
     // SSE through our backend proxy — /api/acs/v1/events/stream
-    const url = `/api/acs/v1/events/stream${filters.event_category ? `?event_category=${filters.event_category}` : ''}`;
+    // EventSource can't send Authorization header, so we pass token via query
+    const token = localStorage.getItem('acs_user_token') || '';
+    const params = new URLSearchParams();
+    if (token) params.set('token', token);
+    if (filters.event_category) params.set('event_category', filters.event_category);
+    const url = `/api/acs/v1/events/stream?${params}`;
     const es = new EventSource(url);
     sseRef.current = es;
     es.onopen = () => setSseConnected(true);

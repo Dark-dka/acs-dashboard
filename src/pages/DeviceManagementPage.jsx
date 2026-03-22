@@ -3,7 +3,8 @@ import { apiFetch } from '../api/client';
 import { Cpu, RefreshCw, Upload, Settings, Radar, CreditCard, DoorOpen, Fingerprint, Terminal, Wifi } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const GW_DEFAULT = 'gateway-a';
+// Per docs: use device_id (platform UUID) for all device-management endpoints
+const DEFAULT_DEVICE_ID = '';
 
 function Section({ title, icon: Icon, children }) {
   return (
@@ -17,7 +18,7 @@ function Section({ title, icon: Icon, children }) {
 }
 
 export default function DeviceManagementPage() {
-  const [gateway, setGateway] = useState(GW_DEFAULT);
+  const [deviceId, setDeviceId] = useState(DEFAULT_DEVICE_ID);
   const [capabilities, setCapabilities] = useState(null);
   const [personCount, setPersonCount] = useState(null);
   const [devPersons, setDevPersons] = useState([]);
@@ -40,32 +41,38 @@ export default function DeviceManagementPage() {
   };
 
   const loadCapabilities = () => apiCall('cap', async () => {
-    const res = await apiFetch(`/ext/v1/device-management/capabilities?gateway=${gateway}`);
+    const q = deviceId ? `?device_id=${deviceId}` : '';
+    const res = await apiFetch(`/ext/v1/device-management/capabilities${q}`);
     setCapabilities(res?.data || res);
   });
 
   const loadPersonCount = () => apiCall('pc', async () => {
-    const res = await apiFetch(`/ext/v1/device-management/person-count?gateway=${gateway}`);
+    const q = deviceId ? `?device_id=${deviceId}` : '';
+    const res = await apiFetch(`/ext/v1/device-management/person-count${q}`);
     setPersonCount(res?.data || res);
   });
 
   const loadDevPersons = () => apiCall('dp', async () => {
-    const res = await apiFetch(`/ext/v1/device-management/persons?gateway=${gateway}&max_results=30`);
+    const q = deviceId ? `device_id=${deviceId}&` : '';
+    const res = await apiFetch(`/ext/v1/device-management/persons?${q}max_results=30`);
     setDevPersons(res?.data || []);
   });
 
   const loadDevCards = () => apiCall('dc', async () => {
-    const res = await apiFetch(`/ext/v1/device-management/cards?gateway=${gateway}&max_results=30`);
+    const q = deviceId ? `device_id=${deviceId}&` : '';
+    const res = await apiFetch(`/ext/v1/device-management/cards?${q}max_results=30`);
     setDevCards(res?.data || []);
   });
 
   const loadModeBStatus = () => apiCall('mb', async () => {
-    const res = await apiFetch(`/ext/v1/device-management/mode-b-status?gateway=${gateway}`);
+    const q = deviceId ? `?device_id=${deviceId}` : '';
+    const res = await apiFetch(`/ext/v1/device-management/mode-b-status${q}`);
     setModeBStatus(res?.data || res);
   });
 
   const saveDoorParams = () => apiCall('dp_save', async () => {
-    await apiFetch(`/ext/v1/device-management/doors/${doorParams.door_no}/params?gateway=${gateway}`, {
+    const q = deviceId ? `?device_id=${deviceId}` : '';
+    await apiFetch(`/ext/v1/device-management/doors/${doorParams.door_no}/params${q}`, {
       method: 'PUT',
       body: JSON.stringify({ openDuration: Number(doorParams.openDuration), closeTimeout: Number(doorParams.closeTimeout) }),
     });
@@ -73,7 +80,8 @@ export default function DeviceManagementPage() {
   });
 
   const captureFingerprint = () => apiCall('fpc', async () => {
-    const res = await apiFetch(`/ext/v1/device-management/fingerprint/capture?gateway=${gateway}`, {
+    const q = deviceId ? `?device_id=${deviceId}` : '';
+    const res = await apiFetch(`/ext/v1/device-management/fingerprint/capture${q}`, {
       method: 'POST',
       body: JSON.stringify({ finger_no: 1 }),
     });
@@ -84,7 +92,8 @@ export default function DeviceManagementPage() {
   });
 
   const addFingerprint = () => apiCall('fpa', async () => {
-    await apiFetch(`/ext/v1/device-management/fingerprint/add?gateway=${gateway}`, {
+    const q = deviceId ? `?device_id=${deviceId}` : '';
+    await apiFetch(`/ext/v1/device-management/fingerprint/add${q}`, {
       method: 'POST',
       body: JSON.stringify({ ...fpAddForm, finger_print_id: Number(fpAddForm.finger_print_id) }),
     });
@@ -93,7 +102,8 @@ export default function DeviceManagementPage() {
   });
 
   const runPassthrough = () => apiCall('pt', async () => {
-    const res = await apiFetch(`/ext/v1/device-management/passthrough?gateway=${gateway}`, {
+    const q = deviceId ? `?device_id=${deviceId}` : '';
+    const res = await apiFetch(`/ext/v1/device-management/passthrough${q}`, {
       method: 'POST',
       body: JSON.stringify(passthrough),
     });
@@ -109,7 +119,8 @@ export default function DeviceManagementPage() {
       fd.append('employee_no', faceForm.employee_no);
       fd.append('image', faceForm.file);
       const token = localStorage.getItem('acs_user_token');
-      await fetch(`/api/acs/v1/device-management/face/upload?gateway=${gateway}`, {
+      const q = deviceId ? `?device_id=${deviceId}` : '';
+      await fetch(`/api/acs/v1/device-management/face/upload${q}`, {
         method: 'POST',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         body: fd,
@@ -123,15 +134,16 @@ export default function DeviceManagementPage() {
     <div className="space-y-5">
       <div>
         <h1 className="text-2xl font-bold text-white flex items-center gap-2"><Settings className="w-6 h-6 text-violet-400" />Управление устройствами</h1>
-        <p className="text-slate-400 text-sm mt-1">Управление ACS устройствами через gateway</p>
+        <p className="text-slate-400 text-sm mt-1">Управление ACS устройствами (device_id targeting)</p>
       </div>
 
       {/* Gateway selector */}
       <div className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl">
         <Cpu className="w-4 h-4 text-slate-400" />
-        <span className="text-sm text-slate-300">Gateway:</span>
-        <input value={gateway} onChange={e => setGateway(e.target.value)}
-          className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-1 focus:ring-violet-500 w-40" />
+        <span className="text-sm text-slate-300">Device ID:</span>
+        <input value={deviceId} onChange={e => setDeviceId(e.target.value)}
+          placeholder="UUID устройства..."
+          className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-white text-sm font-mono focus:outline-none focus:ring-1 focus:ring-violet-500 w-72 placeholder-slate-500" />
         <div className="ml-auto flex gap-2">
           <button onClick={loadModeBStatus} className="text-xs text-slate-400 hover:text-violet-400 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 transition-all">
             {loading.mb ? '...' : 'Mode B статус'}

@@ -1,0 +1,75 @@
+============================================================
+ACS DASHBOARD — ДИАГНОСТИКА
+============================================================
+ACS Base: https://pbx.nettech.uz
+Backend:  http://localhost:3001
+Service:  crm_backend
+
+── Прямой: GET https://pbx.nettech.uz/ext/v1/devices
+   Status: 200
+   Content-Type: application/json
+   Items: 3
+   Pagination: {"total":3,"limit":50,"offset":0}
+   Первый элемент (ключи): id, name, model, type, serial_number, status, is_active, ip_address, created_at
+   Первый элемент: {
+  "id": "544971a0-ec5c-4313-9bf3-01c21c3f8234",
+  "name": "DS-K1T671MF",
+  "model": "",
+  "type": "AccessControl",
+  "serial_number": "",
+  "status": "online",
+  "is_active": true,
+  "ip_address": "",
+  "created_at": "2026-03-21T17:51:42.670633Z"
+}
+
+── Прямой: GET https://pbx.nettech.uz/ext/v1/doors
+   Status: 200
+   Content-Type: application/json
+   Items: 2
+   Pagination: {"total":2,"limit":100,"offset":0}
+   Первый элемент (ключи): gateway_id, gateway_name, door_no, door_name, status, open_duration, close_timeout
+   Первый элемент: {
+  "gateway_id": "gateway-a",
+  "gateway_name": "Gateway A (Ranch)",
+  "door_no": 1,
+  "door_name": "",
+  "status": "available",
+  "open_duration": null,
+  "close_timeout": null
+}
+
+── Прямой: GET https://pbx.nettech.uz/ext/v1/persons?limit=3
+   Status: 200
+   Content-Type: application/json
+   Items: 2
+   Pagination: {"total":2,"limit":3,"offset":0}
+   Первый элемент (ключи): id, employee_no, first_name, last_name, department, phone, email, deploy_status, door_rights, created_at, updated_at
+   Первый элемент: {
+  "id": "1cd06d2c-9dce-4cac-9734-fef01b61fdea",
+  "employee_no": 4,
+  "first_name": "Should",
+  "last_name": "Fail",
+  "department": null,
+  "phone": null,
+  "email": null,
+  "deploy_status": "pending",
+  "door_rights": [
+    1
+  ],
+  "created_at": "2026-03-20T06:45:26.290026Z",
+  "updated_at": "2026-03-20T06:45:26.290026Z"
+}
+
+── Proxy: POST http://localhost:3001/api/auth/login
+   ✅ Логин OK, токен получен
+
+── Proxy: GET http://localhost:3001/api/acs/v1/devices
+   Status: 200
+   Content-Type: application/json; charset=utf-8
+   Items: 3
+   Первый элемент (ключи): id, name, model, type, serial_number, status, is_active, ip_address, created_at
+
+============================================================
+ДИАГНОСТИКА ЗАВЕРШЕНА
+============================================================

@@ -1,0 +1,76 @@
+=== ДИАГНОСТИКА ДВЕРЕЙ ===
+ACS: https://pbx.nettech.uz
+
+── 1. GET /ext/v1/devices
+   Всего устройств: 3
+   [0] id=544971a0-ec5c-4313-9bf3-01c21c3f8234  name=DS-K1T671MF  status=online  gateway_id=N/A
+   [1] id=1f57534c-5b75-4c3f-8be7-0500eb01a887  name=DS-K1T642E  status=online  gateway_id=N/A
+   [2] id=274121f5-6fbe-4309-b59f-b38b0ef6f0d9  name=DS-K1T642EF  status=online  gateway_id=N/A
+
+── 2. GET /ext/v1/doors
+   Всего дверей: 2
+   [0] gateway_id=gateway-a  door_no=1  name=""  status=available
+   [1] gateway_id=gateway-b  door_no=1  name=""  status=available
+
+── 3. Двери по gateway
+   gateway-a: 2 дверей (status=200)
+     door_no=1 name="" status=available
+     door_no=1 name="" status=available
+   gateway-b: 2 дверей (status=200)
+     door_no=1 name="" status=available
+     door_no=1 name="" status=available
+   gateway-c: 2 дверей (status=200)
+     door_no=1 name="" status=available
+     door_no=1 name="" status=available
+   gateway-d: 2 дверей (status=200)
+     door_no=1 name="" status=available
+     door_no=1 name="" status=available
+
+── 4. Проверяем /ext/v1/devices/* endpoints
+
+   Device: DS-K1T671MF (544971a0-ec5c-4313-9bf3-01c21c3f8234)
+     capabilities: status=200
+     supports_remote_control=false max_persons=0
+     doors?device_id: 2 дверей (status=200)
+
+   Device: DS-K1T642E (1f57534c-5b75-4c3f-8be7-0500eb01a887)
+     capabilities: status=200
+     supports_remote_control=false max_persons=0
+     doors?device_id: 2 дверей (status=200)
+
+   Device: DS-K1T642EF (274121f5-6fbe-4309-b59f-b38b0ef6f0d9)
+     capabilities: status=200
+     supports_remote_control=false max_persons=0
+     doors?device_id: 2 дверей (status=200)
+
+── 5. Полный JSON двери
+{
+  "ok": true,
+  "data": [
+    {
+      "gateway_id": "gateway-a",
+      "gateway_name": "Gateway A (Ranch)",
+      "door_no": 1,
+      "door_name": "",
+      "status": "available",
+      "open_duration": null,
+      "close_timeout": null
+    },
+    {
+      "gateway_id": "gateway-b",
+      "gateway_name": "Gateway B (Lab)",
+      "door_no": 1,
+      "door_name": "",
+      "status": "available",
+      "open_duration": null,
+      "close_timeout": null
+    }
+  ],
+  "pagination": {
+    "total": 2,
+    "limit": 100,
+    "offset": 0
+  }
+}
+
+=== ДИАГНОСТИКА ЗАВЕРШЕНА ===
